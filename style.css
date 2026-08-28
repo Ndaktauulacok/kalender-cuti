@@ -82,28 +82,69 @@ body{
 
 .countdown-card{
   display:inline-flex;
-  align-items:baseline;
-  gap:0.5rem;
+  flex-direction:column;
+  align-items:center;
+  gap:0.6rem;
   background: var(--paper);
   color: var(--ink);
-  padding: 0.9rem 1.6rem;
-  border-radius: 999px;
+  padding: 1.1rem 1.8rem 1.3rem;
+  border-radius: 22px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.28);
 }
 .countdown-label{
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: rgba(30,42,34,0.65);
-}
-.countdown-number{
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.7rem;
-  color: var(--red);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(30,42,34,0.6);
 }
 .countdown-suffix{
-  font-size: 0.82rem;
-  color: rgba(30,42,34,0.65);
+  font-size: 0.76rem;
+  color: rgba(30,42,34,0.55);
+}
+
+.countdown-clock{
+  display:flex;
+  align-items:flex-start;
+  gap: 0.5rem;
+}
+.clock-seg{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-width: 2.6rem;
+}
+.clock-num{
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+.clock-unit{
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(30,42,34,0.5);
+  margin-top: 0.3rem;
+}
+.clock-colon{
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: rgba(30,42,34,0.25);
+  align-self:center;
+  transform: translateY(-6px);
+}
+
+/* bila tempoh cuti dah tamat, papar mesej mudah tanpa jam */
+.countdown-card.finished .countdown-clock{ display:none; }
+.countdown-card.finished .countdown-suffix{
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--green);
 }
 
 /* =========================================================
@@ -234,6 +275,35 @@ body{
 /* the "masuk balik" (back-to-school) day is the one non-holiday, treat distinctly */
 .day.schoolday{ box-shadow: inset 3px 0 0 var(--green), 0 4px 14px rgba(0,0,0,0.16); }
 .day.schoolday .day-date .num{ color: var(--green); }
+
+/* hari yang sudah berlalu — pudar, tanda selesai */
+.day.past{
+  background: transparent;
+  box-shadow: none;
+  outline: 1px dashed rgba(247,241,228,0.16);
+  opacity: 0.55;
+}
+.day.past .day-date .num,
+.day.past .day-name{
+  color: rgba(247,241,228,0.6);
+}
+.day.past .day-event,
+.day.past .day-date .mon{
+  color: rgba(247,241,228,0.38);
+}
+.day.past .day-divider{ background: rgba(247,241,228,0.14); }
+.day.past .badge{ opacity: 0.7; }
+.day.past .day-name::before{
+  content: "✓";
+  display:inline-block;
+  margin-right: 0.4rem;
+  color: var(--green);
+  font-weight: 700;
+}
+/* elak dua rule warna berlawanan bila hari lepas juga hari bendera/sekolah */
+.day.past.flagged{ box-shadow: none; }
+.day.past.schoolday{ box-shadow: none; }
+.day.past.schoolday .day-date .num{ color: rgba(247,241,228,0.6); }
 
 /* today gets a ring + gentle lift */
 .day.today{
