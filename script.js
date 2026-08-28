@@ -24,7 +24,14 @@ const MONTH_NAMES_MS = [
 ];
 
 function toISO(d) {
-  return d.toISOString().slice(0, 10);
+  // NOTA: guna komponen tarikh TEMPATAN sahaja (bukan toISOString/UTC).
+  // toISOString() tukar ke UTC dan sebab Malaysia GMT+8, ia sorong
+  // tarikh mundur 1 hari secara senyap — punca "Hari Kebangsaan"
+  // terlekat pada 1 Sept dan "hari ini" terlekat pada 29 Ogos.
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function buildDays() {
