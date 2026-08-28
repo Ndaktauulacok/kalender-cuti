@@ -2,18 +2,38 @@
    1. DATA
    -----------------------------------------------------------
    Untuk kemas kini tarikh cuti pada masa depan, cuma ubah
-   START_DATE / END_DATE dan senarai SPECIAL_DAYS di bawah.
-   Semua tarikh antara START_DATE dan END_DATE akan dianggap
-   "Cuti" secara automatik, kecuali ditanda type:'sekolah'.
+   START_DATE / END_DATE, tempoh PAD_START/PAD_END, dan
+   senarai SPECIAL_DAYS di bawah.
    ========================================================= */
 
-const START_DATE = "2026-08-28"; // Jumaat, 28 Ogos 2026
-const END_DATE   = "2026-10-05"; // Isnin, 5 Oktober 2026 (Masuk Balik)
+const START_DATE = "2026-08-28"; // Jumaat, 28 Ogos 2026 (cuti bermula — semua pelajar)
+const END_DATE   = "2026-10-05"; // Isnin, 5 Oktober 2026 (Masuk Balik — pelajar TIADA PAD)
+
+// Tempoh PAD: pelajar berkenaan masuk balik lebih awal (pada PAD_START),
+// bukan tunggu sampai END_DATE macam pelajar lain.
+const PAD_START = "2026-09-28"; // pelajar PAD masuk balik / program PAD bermula
+const PAD_END   = "2026-10-02"; // program PAD tamat
+
+// Pelajar ASRAMA balik SEHARI LEBIH AWAL daripada tarikh masuk balik rasmi
+// (sama ada tarikh rasmi tu 5 Okt atau 28 Sept ikut kumpulan PAD/tiada PAD).
+// Pelajar HARIAN kekal ikut tarikh rasmi — tiada perubahan.
+const ASRAMA_OFFSET_DAYS = 1;
 
 // Tarikh istimewa: key = "YYYY-MM-DD"
 const SPECIAL_DAYS = {
   "2026-08-31": { event: "Hari Kebangsaan", national: true },
   "2026-09-16": { event: "Hari Malaysia", national: true },
+
+  // sehari sebelum PAD masuk balik — asrama dah balik, harian masih cuti
+  "2026-09-27": { event: "Cuti Sekolah", asramaBalik: true },
+  "2026-09-28": { event: "Pelajar PAD Masuk Balik", type: "pad", padMasuk: true },
+  "2026-09-29": { event: "Program PAD", type: "pad" },
+  "2026-09-30": { event: "Program PAD", type: "pad" },
+  "2026-10-01": { event: "Program PAD", type: "pad" },
+  "2026-10-02": { event: "Program PAD", type: "pad" },
+
+  // sehari sebelum masuk balik rasmi — asrama dah balik, harian masih cuti
+  "2026-10-04": { event: "Cuti Sekolah", asramaBalik: true },
   "2026-10-05": { event: "Masuk Balik Persekolahan", type: "sekolah" },
 };
 
@@ -26,12 +46,22 @@ const MONTH_NAMES_MS = [
 function toISO(d) {
   // NOTA: guna komponen tarikh TEMPATAN sahaja (bukan toISOString/UTC).
   // toISOString() tukar ke UTC dan sebab Malaysia GMT+8, ia sorong
-  // tarikh mundur 1 hari secara senyap — punca "Hari Kebangsaan"
-  // terlekat pada 1 Sept dan "hari ini" terlekat pada 29 Ogos.
+  // tarikh mundur 1 hari secara senyap.
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+
+function addDays(iso, delta) {
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + delta);
+  return toISO(d);
+}
+
+function formatDateMS(iso) {
+  const d = new Date(iso + "T00:00:00");
+  return `${d.getDate()} ${MONTH_NAMES_MS[d.getMonth()]}`;
 }
 
 function buildDays() {
@@ -54,6 +84,8 @@ function buildDays() {
       type,
       national: !!special.national,
       event: special.event || null,
+      padMasuk: !!special.padMasuk,
+      asramaBalik: !!special.asramaBalik,
     });
     cursor.setDate(cursor.getDate() + 1);
   }
@@ -79,21 +111,40 @@ function groupByWeek(days) {
 }
 
 /* =========================================================
-   2. RENDER
+   2. RENDER KALENDAR
    ========================================================= */
 
 function badgeFor(day) {
+  const badges = [];
+
   if (day.type === "sekolah") {
-    return `<span class="badge sekolah">🏫 Masuk Balik</span>`;
+    badges.push(`<span class="badge sekolah">🏫 Masuk Balik</span>`);
+  } else if (day.type === "pad") {
+    badges.push(
+      day.padMasuk
+        ? `<span class="badge pad">🧩 PAD &middot; Masuk Balik</span>`
+        : `<span class="badge pad">🧩 PAD</span>`
+    );
+  } else if (day.national) {
+    badges.push(`<span class="badge negara">🇲🇾 ${day.event}</span>`);
+  } else {
+    badges.push(`<span class="badge cuti">🏖️ Cuti</span>`);
   }
-  if (day.national) {
-    return `<span class="badge negara">🇲🇾 ${day.event}</span>`;
+
+  // nota tambahan — tidak gantikan badge utama, sebab ia berkaitan
+  // sekumpulan pelajar (asrama) sahaja, bukan status hari itu untuk semua.
+  if (day.asramaBalik) {
+    badges.push(`<span class="badge asrama">🎒 Asrama Balik</span>`);
   }
-  return `<span class="badge cuti">🏖️ Cuti</span>`;
+
+  return badges.join("");
 }
 
 function dayEventLine(day) {
-  if (day.type === "sekolah") return "Sekolah dibuka semula";
+  if (day.type === "sekolah") return "Sekolah dibuka semula (semua pelajar)";
+  if (day.type === "pad" && day.padMasuk) return "Pelajar berdaftar PAD masuk balik sekolah";
+  if (day.type === "pad") return "Program PAD diteruskan";
+  if (day.asramaBalik) return "Cuti sekolah — pelajar asrama masuk balik hari ini";
   if (day.event) return day.event;
   return "Cuti sekolah";
 }
@@ -118,6 +169,7 @@ function renderCalendar(days) {
           if (day.isWeekend) classes.push("weekend");
           if (day.national) classes.push("flagged");
           if (day.type === "sekolah") classes.push("schoolday");
+          if (day.type === "pad") classes.push("padday");
           if (day.iso === todayISO) classes.push("today");
           if (day.iso < todayISO) classes.push("past");
 
@@ -147,44 +199,52 @@ function renderCalendar(days) {
 }
 
 /* =========================================================
-   3. COUNTDOWN — jam hidup (hari : jam : minit : saat)
+   3. COUNTDOWN — dua jam hidup berasingan
+      (Tiada PAD -> 5 Okt, Ada PAD -> 28 Sept)
+      Setiap satu ambil kira Asrama (sehari awal) vs Harian (tarikh sebenar).
    ========================================================= */
 
 function pad2(n) {
   return String(n).padStart(2, "0");
 }
 
-function renderCountdown(days) {
-  const cardEl = document.getElementById("countdownCard");
-  const labelEl = document.getElementById("countdownLabel");
-  const suffixEl = document.getElementById("countdownSuffix");
-  const dEl = document.getElementById("clockDays");
-  const hEl = document.getElementById("clockHours");
-  const mEl = document.getElementById("clockMins");
-  const sEl = document.getElementById("clockSecs");
+function makeCountdown({ elIds, holidayStartISO, returnISO, asramaReturnISO, openHour = 7, openMin = 30 }) {
+  const cardEl = document.getElementById(elIds.card);
+  const labelEl = document.getElementById(elIds.label);
+  const suffixEl = document.getElementById(elIds.suffix);
+  const noteEl = document.getElementById(elIds.note);
+  const dEl = document.getElementById(elIds.days);
+  const hEl = document.getElementById(elIds.hours);
+  const mEl = document.getElementById(elIds.mins);
+  const sEl = document.getElementById(elIds.secs);
 
-  const schoolDay = days.find((d) => d.type === "sekolah");
-  const start = days[0].date; // 00:00 pada hari cuti bermula
-  // sekolah dibuka semula pada waktu pagi (anggap 7:30 pagi)
-  const schoolOpens = new Date(schoolDay.date);
-  schoolOpens.setHours(7, 30, 0, 0);
+  const holidayStart = new Date(holidayStartISO + "T00:00:00");
+  const returnOpen = new Date(returnISO + "T00:00:00");
+  returnOpen.setHours(openHour, openMin, 0, 0);
+
+  if (noteEl) {
+    noteEl.textContent =
+      `🎓 Harian: ${formatDateMS(returnISO)}  ·  🎒 Asrama: ${formatDateMS(asramaReturnISO)}`;
+  }
+
+  let intervalId;
 
   function tick() {
     const now = new Date();
     let target;
 
-    if (now < start) {
+    if (now < holidayStart) {
       labelEl.textContent = "Cuti sekolah bermula dalam";
       suffixEl.textContent = "sebelum cuti bermula";
-      target = start;
-    } else if (now < schoolOpens) {
-      labelEl.textContent = "Masuk balik sekolah dalam";
-      suffixEl.textContent = "sebelum sekolah dibuka semula";
-      target = schoolOpens;
+      target = holidayStart;
+    } else if (now < returnOpen) {
+      labelEl.textContent = "Masuk balik dalam";
+      suffixEl.textContent = "sebelum pelajar harian masuk balik";
+      target = returnOpen;
     } else {
       cardEl.classList.add("finished");
       labelEl.textContent = "Status";
-      suffixEl.textContent = "🏫 Sekolah sudah dibuka semula";
+      suffixEl.textContent = "🏫 Sudah masuk balik";
       clearInterval(intervalId);
       return;
     }
@@ -203,7 +263,7 @@ function renderCountdown(days) {
   }
 
   tick();
-  const intervalId = setInterval(tick, 1000);
+  intervalId = setInterval(tick, 1000);
 }
 
 /* =========================================================
@@ -212,7 +272,43 @@ function renderCountdown(days) {
 
 const DAYS = buildDays();
 renderCalendar(DAYS);
-renderCountdown(DAYS);
+
+const ASRAMA_RETURN_NORMAL = addDays(END_DATE, -ASRAMA_OFFSET_DAYS);  // 2026-10-04
+const ASRAMA_RETURN_PAD    = addDays(PAD_START, -ASRAMA_OFFSET_DAYS); // 2026-09-27
+
+// Timer 1 — pelajar TIADA PAD (balik ikut tarikh rasmi 5 Okt)
+makeCountdown({
+  elIds: {
+    card: "countdownCardNoPad",
+    label: "countdownLabelNoPad",
+    suffix: "countdownSuffixNoPad",
+    note: "countdownNoteNoPad",
+    days: "clockDaysNoPad",
+    hours: "clockHoursNoPad",
+    mins: "clockMinsNoPad",
+    secs: "clockSecsNoPad",
+  },
+  holidayStartISO: START_DATE,
+  returnISO: END_DATE,
+  asramaReturnISO: ASRAMA_RETURN_NORMAL,
+});
+
+// Timer 2 — pelajar ADA PAD (balik lebih awal, 28 Sept)
+makeCountdown({
+  elIds: {
+    card: "countdownCardPad",
+    label: "countdownLabelPad",
+    suffix: "countdownSuffixPad",
+    note: "countdownNotePad",
+    days: "clockDaysPad",
+    hours: "clockHoursPad",
+    mins: "clockMinsPad",
+    secs: "clockSecsPad",
+  },
+  holidayStartISO: START_DATE,
+  returnISO: PAD_START,
+  asramaReturnISO: ASRAMA_RETURN_PAD,
+});
 
 // scroll hari ini ke pandangan, jika ada
 window.addEventListener("DOMContentLoaded", () => {
