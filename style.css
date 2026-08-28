@@ -11,6 +11,10 @@
   --gold-dim:   #A87F34;
   --red:        #A9463F;   /* Hari Kebangsaan / Hari Malaysia */
   --green:      #4C7A5E;   /* Masuk Balik */
+  --pad:        #6B4FA0;   /* Program PAD */
+  --pad-bg:     rgba(107,79,160,0.14);
+  --asrama:     #2E6E8E;   /* nota pelajar asrama */
+  --asrama-bg:  rgba(46,110,142,0.14);
   --line:       rgba(30,42,34,0.14);
 
   --font-display: "Fraunces", Georgia, serif;
@@ -53,7 +57,7 @@ body{
   padding: 4.5rem 1.5rem 3rem;
   text-align:center;
 }
-.hero-inner{ max-width: 640px; margin:0 auto; }
+.hero-inner{ max-width: 720px; margin:0 auto; }
 
 .eyebrow{
   font-family: var(--font-mono);
@@ -77,20 +81,51 @@ body{
   font-family: var(--font-mono);
   font-size: 0.95rem;
   color: rgba(247,241,228,0.65);
-  margin: 0.9rem 0 2.2rem;
+  margin: 0.9rem 0 0.5rem;
+}
+
+.hero-note{
+  font-size: 0.82rem;
+  color: rgba(247,241,228,0.5);
+  max-width: 480px;
+  margin: 0 auto 2.2rem;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   COUNTDOWN — dua kad berasingan (Tiada PAD / Ada PAD)
+   ========================================================= */
+.countdown-row{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap: 1rem;
 }
 
 .countdown-card{
   display:inline-flex;
   flex-direction:column;
   align-items:center;
-  gap:0.6rem;
+  gap:0.5rem;
   background: var(--paper);
   color: var(--ink);
-  padding: 1.1rem 1.8rem 1.3rem;
+  padding: 1.1rem 1.6rem 1.3rem;
   border-radius: 22px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+  min-width: 240px;
 }
+
+.countdown-tag{
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+.countdown-card.pad .countdown-tag{ color: var(--pad); }
+.countdown-card.pad .clock-num{ color: var(--pad); }
+
 .countdown-label{
   font-size: 0.78rem;
   font-weight: 600;
@@ -100,6 +135,13 @@ body{
 .countdown-suffix{
   font-size: 0.76rem;
   color: rgba(30,42,34,0.55);
+}
+.countdown-note{
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: rgba(30,42,34,0.5);
+  margin-top: 0.2rem;
+  text-align:center;
 }
 
 .countdown-clock{
@@ -142,7 +184,7 @@ body{
 .countdown-card.finished .countdown-clock{ display:none; }
 .countdown-card.finished .countdown-suffix{
   font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: var(--green);
 }
@@ -261,10 +303,13 @@ body{
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
   margin-top: 0.35rem;
+  margin-right: 0.35rem;
 }
 .badge.cuti{ background: rgba(76,122,94,0.14); color: var(--green); }
 .badge.negara{ background: rgba(169,70,63,0.12); color: var(--red); }
 .badge.sekolah{ background: rgba(204,154,62,0.16); color: var(--gold-dim); }
+.badge.pad{ background: var(--pad-bg); color: var(--pad); }
+.badge.asrama{ background: var(--asrama-bg); color: var(--asrama); }
 
 /* weekend tint */
 .day.weekend{ background: var(--paper-dim); }
@@ -275,6 +320,10 @@ body{
 /* the "masuk balik" (back-to-school) day is the one non-holiday, treat distinctly */
 .day.schoolday{ box-shadow: inset 3px 0 0 var(--green), 0 4px 14px rgba(0,0,0,0.16); }
 .day.schoolday .day-date .num{ color: var(--green); }
+
+/* hari-hari program PAD, ditandakan berlainan warna daripada masuk balik biasa */
+.day.padday{ box-shadow: inset 3px 0 0 var(--pad), 0 4px 14px rgba(0,0,0,0.16); }
+.day.padday .day-date .num{ color: var(--pad); }
 
 /* hari yang sudah berlalu — pudar, tanda selesai */
 .day.past{
@@ -300,10 +349,12 @@ body{
   color: var(--green);
   font-weight: 700;
 }
-/* elak dua rule warna berlawanan bila hari lepas juga hari bendera/sekolah */
+/* elak dua rule warna berlawanan bila hari lepas juga hari bendera/sekolah/pad */
 .day.past.flagged{ box-shadow: none; }
 .day.past.schoolday{ box-shadow: none; }
 .day.past.schoolday .day-date .num{ color: rgba(247,241,228,0.6); }
+.day.past.padday{ box-shadow: none; }
+.day.past.padday .day-date .num{ color: rgba(247,241,228,0.6); }
 
 /* today gets a ring + gentle lift */
 .day.today{
@@ -346,6 +397,8 @@ body{
    ========================================================= */
 @media (max-width: 480px){
   .hero{ padding: 3.2rem 1.1rem 2.4rem; }
+  .countdown-row{ flex-direction:column; align-items:center; }
+  .countdown-card{ min-width: 0; width: 100%; max-width: 320px; }
   .day{ grid-template-columns: 64px 1px 1fr; padding: 0.85rem 1rem; gap:0.8rem; }
   .day-date .num{ font-size: 1.3rem; }
 }
