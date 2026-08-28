@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalendar Cuti Kohort (2025)</title>
+<title>Cuti Semester 3</title>
 <meta name="description" content="Kalendar cuti sekolah — semak tarikh, hari dan status setiap hari cuti.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,6 +11,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css">
+
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 </head>
 <body>
 
@@ -18,45 +23,42 @@
 
 <header class="hero">
   <div class="hero-inner">
-    <p class="eyebrow">Semester 3 Kohort (2025) &middot; Malaysia</p>
-    <h1 class="hero-title">Kalendar<br>Cuti Sekolah</h1>
+    <p class="eyebrow">Semester 3 &middot; Malaysia</p>
+    <h1 class="hero-title">Kalendar<br>Cuti Semester 3</h1>
     <p class="hero-sub">28 Ogos &ndash; 5 Oktober 2026</p>
-    <p class="hero-note">28 Sept &ndash; 2 Okt: Program PAD &middot; pelajar asrama balik sehari lebih awal daripada pelajar harian.</p>
 
-    <div class="countdown-row">
-
-      <div class="countdown-card" id="countdownCardNoPad">
-        <span class="countdown-tag">Tiada PAD</span>
-        <span class="countdown-label" id="countdownLabelNoPad">Mengira&hellip;</span>
+    <div class="clocks-row">
+      <div class="countdown-card" id="clockNormalCard">
+        <span class="countdown-tag">Bukan PAD</span>
+        <span class="countdown-label" id="clockNormalLabel">Mengira&hellip;</span>
         <div class="countdown-clock">
-          <div class="clock-seg"><span class="clock-num" id="clockDaysNoPad">00</span><span class="clock-unit">hari</span></div>
+          <div class="clock-seg"><span class="clock-num" id="normalDays">00</span><span class="clock-unit">hari</span></div>
           <span class="clock-colon">:</span>
-          <div class="clock-seg"><span class="clock-num" id="clockHoursNoPad">00</span><span class="clock-unit">jam</span></div>
+          <div class="clock-seg"><span class="clock-num" id="normalHours">00</span><span class="clock-unit">jam</span></div>
           <span class="clock-colon">:</span>
-          <div class="clock-seg"><span class="clock-num" id="clockMinsNoPad">00</span><span class="clock-unit">minit</span></div>
+          <div class="clock-seg"><span class="clock-num" id="normalMins">00</span><span class="clock-unit">minit</span></div>
           <span class="clock-colon">:</span>
-          <div class="clock-seg"><span class="clock-num" id="clockSecsNoPad">00</span><span class="clock-unit">saat</span></div>
+          <div class="clock-seg"><span class="clock-num" id="normalSecs">00</span><span class="clock-unit">saat</span></div>
         </div>
-        <span class="countdown-suffix" id="countdownSuffixNoPad"></span>
-        <span class="countdown-note" id="countdownNoteNoPad"></span>
+        <span class="countdown-suffix" id="clockNormalSuffix"></span>
+        <span class="countdown-note" id="clockNormalNote"></span>
       </div>
 
-      <div class="countdown-card pad" id="countdownCardPad">
-        <span class="countdown-tag">Ada PAD</span>
-        <span class="countdown-label" id="countdownLabelPad">Mengira&hellip;</span>
+      <div class="countdown-card" id="clockPadCard">
+        <span class="countdown-tag pad">Pelajar PAD</span>
+        <span class="countdown-label" id="clockPadLabel">Mengira&hellip;</span>
         <div class="countdown-clock">
-          <div class="clock-seg"><span class="clock-num" id="clockDaysPad">00</span><span class="clock-unit">hari</span></div>
+          <div class="clock-seg"><span class="clock-num" id="padDays">00</span><span class="clock-unit">hari</span></div>
           <span class="clock-colon">:</span>
-          <div class="clock-seg"><span class="clock-num" id="clockHoursPad">00</span><span class="clock-unit">jam</span></div>
+          <div class="clock-seg"><span class="clock-num" id="padHours">00</span><span class="clock-unit">jam</span></div>
           <span class="clock-colon">:</span>
-          <div class="clock-seg"><span class="clock-num" id="clockMinsPad">00</span><span class="clock-unit">minit</span></div>
+          <div class="clock-seg"><span class="clock-num" id="padMins">00</span><span class="clock-unit">minit</span></div>
           <span class="clock-colon">:</span>
-          <div class="clock-seg"><span class="clock-num" id="clockSecsPad">00</span><span class="clock-unit">saat</span></div>
+          <div class="clock-seg"><span class="clock-num" id="padSecs">00</span><span class="clock-unit">saat</span></div>
         </div>
-        <span class="countdown-suffix" id="countdownSuffixPad"></span>
-        <span class="countdown-note" id="countdownNotePad"></span>
+        <span class="countdown-suffix" id="clockPadSuffix"></span>
+        <span class="countdown-note" id="clockPadNote"></span>
       </div>
-
     </div>
   </div>
 </header>
