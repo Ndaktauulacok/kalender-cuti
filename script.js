@@ -112,6 +112,7 @@ function renderCalendar(days) {
           if (day.national) classes.push("flagged");
           if (day.type === "sekolah") classes.push("schoolday");
           if (day.iso === todayISO) classes.push("today");
+          if (day.iso < todayISO) classes.push("past");
 
           return `
           <article class="${classes.join(" ")}">
@@ -139,38 +140,63 @@ function renderCalendar(days) {
 }
 
 /* =========================================================
-   3. COUNTDOWN
+   3. COUNTDOWN — jam hidup (hari : jam : minit : saat)
    ========================================================= */
 
-function renderCountdown(days) {
-  const labelEl = document.getElementById("countdownLabel");
-  const numEl = document.getElementById("countdownNumber");
-  const suffixEl = document.getElementById("countdownSuffix");
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+function renderCountdown(days) {
+  const cardEl = document.getElementById("countdownCard");
+  const labelEl = document.getElementById("countdownLabel");
+  const suffixEl = document.getElementById("countdownSuffix");
+  const dEl = document.getElementById("clockDays");
+  const hEl = document.getElementById("clockHours");
+  const mEl = document.getElementById("clockMins");
+  const sEl = document.getElementById("clockSecs");
 
   const schoolDay = days.find((d) => d.type === "sekolah");
-  const start = days[0].date;
-  const end = schoolDay.date;
+  const start = days[0].date; // 00:00 pada hari cuti bermula
+  // sekolah dibuka semula pada waktu pagi (anggap 7:30 pagi)
+  const schoolOpens = new Date(schoolDay.date);
+  schoolOpens.setHours(7, 30, 0, 0);
 
-  const msPerDay = 1000 * 60 * 60 * 24;
+  function tick() {
+    const now = new Date();
+    let target;
 
-  if (today < start) {
-    const diff = Math.round((start - today) / msPerDay);
-    labelEl.textContent = "Cuti bermula dalam";
-    numEl.textContent = diff;
-    suffixEl.textContent = diff === 1 ? "hari lagi" : "hari lagi";
-  } else if (today >= start && today < end) {
-    const diff = Math.round((end - today) / msPerDay);
-    labelEl.textContent = "Masuk balik dalam";
-    numEl.textContent = diff;
-    suffixEl.textContent = diff === 1 ? "hari lagi" : "hari lagi";
-  } else {
-    labelEl.textContent = "Status";
-    numEl.textContent = "🏫";
-    suffixEl.textContent = "Sekolah sudah dibuka";
+    if (now < start) {
+      labelEl.textContent = "Cuti sekolah bermula dalam";
+      suffixEl.textContent = "sebelum cuti bermula";
+      target = start;
+    } else if (now < schoolOpens) {
+      labelEl.textContent = "Masuk balik sekolah dalam";
+      suffixEl.textContent = "sebelum sekolah dibuka semula";
+      target = schoolOpens;
+    } else {
+      cardEl.classList.add("finished");
+      labelEl.textContent = "Status";
+      suffixEl.textContent = "🏫 Sekolah sudah dibuka semula";
+      clearInterval(intervalId);
+      return;
+    }
+
+    const diffMs = target - now;
+    const totalSecs = Math.max(0, Math.floor(diffMs / 1000));
+    const d = Math.floor(totalSecs / 86400);
+    const h = Math.floor((totalSecs % 86400) / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+
+    dEl.textContent = pad2(d);
+    hEl.textContent = pad2(h);
+    mEl.textContent = pad2(m);
+    sEl.textContent = pad2(s);
   }
+
+  tick();
+  const intervalId = setInterval(tick, 1000);
 }
 
 /* =========================================================
