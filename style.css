@@ -95,7 +95,8 @@ body{
 /* =========================================================
    COUNTDOWN — dua kad berasingan (Tiada PAD / Ada PAD)
    ========================================================= */
-.countdown-row{
+.countdown-row,
+.clocks-row{
   display:flex;
   flex-wrap:wrap;
   justify-content:center;
@@ -128,8 +129,18 @@ body{
   width: 1px;
   background: rgba(247,241,228,0.18);
 }
+.clocks-row .countdown-card:nth-child(2)::before{
+  content:"";
+  position:absolute;
+  left: -1rem;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: rgba(247,241,228,0.18);
+}
 @media (max-width: 480px){
-  .countdown-card.pad::before{ display:none; }
+  .countdown-card.pad::before,
+  .clocks-row .countdown-card:nth-child(2)::before{ display:none; }
 }
 
 .countdown-tag{
@@ -140,7 +151,8 @@ body{
   text-transform: uppercase;
   color: var(--gold-dim);
 }
-.countdown-card.pad .countdown-tag{ color: var(--pad); }
+.countdown-card.pad .countdown-tag,
+.countdown-tag.pad{ color: var(--pad); }
 .countdown-card.pad .clock-num{ color: var(--pad); }
 
 .countdown-label{
